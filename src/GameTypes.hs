@@ -80,11 +80,11 @@ platformWidth = 20
 platformHeight :: Float
 platformHeight = 100
 easyOffset :: Float
-easyOffset = 200
+easyOffset = 600
 defaultOffset :: Float
 defaultOffset = 400
 hardOffset :: Float
-hardOffset = 600
+hardOffset = 200
 
 moneyWidth :: Float
 moneyWidth = 40
