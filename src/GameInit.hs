@@ -5,15 +5,15 @@ import GameTypes
 import System.Random
 
 -- Инициализация игрового поля
-initGame :: Int -> StdGen -> Records -> Float -> GameState
-initGame m g records offset = GameState
- {gameObstacles = absoluteObstacles 300 platformWidth offset (initObstacles g),
+initGame :: Int -> StdGen -> StdGen -> Records -> Float -> GameState
+initGame m g1 g2 records offset = GameState
+ {gameObstacles = absoluteObstacles 300 platformWidth offset (initObstacles g1),
   gamePlayer = initPlayer,
   gameScore  = 0,
   gameBackground = initBackground,
   gameRecords = records,
   gameMoneyScore = m,
-  gameMoney = absoluteObstacles 500 moneyWidth moneyOffset (initMoney g),
+  gameMoney = absoluteObstacles 500 moneyWidth moneyOffset (initMoney g2),
   gameCollisPlayer = False,
   gameCollisSteps = 0,
   gameMode = InGame,
