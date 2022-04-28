@@ -23,19 +23,25 @@ handleEvent (EventKey (MouseButton LeftButton) Down _ (x, y)) state
         y < 200, y > 40]  =  return state{ gameMode = Settings }
       | and[((gameMode state) == Settings),
         x > (-250), x < 250,
-        y > 20, y < 80]  =  return state{ 
-          gameDefaultOffset = easyOffset,
-          gameMode = GameOver }
+        y > 20, y < 80]  =  do
+          g <- newStdGen
+          return 
+            (initGame (gameMoneyScore state) g 
+              (updateRecords (gameRecords state) (gameScore state)) easyOffset)
       | and[((gameMode state) == Settings),
         x > (-250), x < 250,
-        y > (-90), y < (-30)]  =  return state{ 
-          gameDefaultOffset = defaultOffset,
-          gameMode = GameOver }
+        y > (-90), y < (-30)]  =  do
+          g <- newStdGen
+          return 
+            (initGame (gameMoneyScore state) g 
+              (updateRecords (gameRecords state) (gameScore state)) defaultOffset)
       | and[((gameMode state) == Settings),
         x > (-250), x < 250,
-        y > (-200), y < (-140)]  =  return state{ 
-          gameDefaultOffset = hardOffset,
-          gameMode = GameOver }
+        y > (-200), y < (-140)]  =  do
+          g <- newStdGen
+          return 
+            (initGame (gameMoneyScore state) g 
+              (updateRecords (gameRecords state) (gameScore state)) hardOffset)
       | and [((gameMode state) == GameOver), 
         (gameMoneyScore state) >= moneyRevival,
         x < (-50), x > (-350),
