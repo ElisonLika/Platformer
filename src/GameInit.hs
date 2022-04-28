@@ -5,21 +5,35 @@ import GameTypes
 import System.Random
 
 -- Инициализация игрового поля
-initGame :: Int -> StdGen -> Records -> GameState
-initGame m g records = GameState
- {gameObstacles = absoluteObstacles 300 platformWidth defaultOffset (initObstacles g),
+initGame :: Int -> StdGen -> Records -> Float -> GameState
+initGame m g records offset = GameState
+ {gameObstacles = absoluteObstacles 300 platformWidth offset (initObstacles g),
   gamePlayer = initPlayer,
   gameScore  = 0,
   gameBackground = initBackground,
-  gameGameOver = False,
-  gameRecordsOver = False,
   gameRecords = records,
   gameMoneyScore = m,
   gameMoney = absoluteObstacles 500 moneyWidth moneyOffset (initMoney g),
   gameCollisPlayer = False,
-  gameCollisSteps = 0
+  gameCollisSteps = 0,
+  gameMode = InGame,
+  gameDefaultOffset = offset
   }
- 
+
+startGame :: Int -> Records -> GameState
+startGame m records = GameState
+ {gameObstacles = [],
+  gamePlayer = initPlayer,
+  gameScore  = 0,
+  gameBackground = initBackground,
+  gameRecords = records,
+  gameMoneyScore = m,
+  gameMoney = [],
+  gameCollisPlayer = False,
+  gameCollisSteps = 0,
+  gameMode = Settings,
+  gameDefaultOffset = defaultOffset
+ } 
 -- Инициализирование начальное состояние игрока
 initPlayer :: Player
 initPlayer = Square

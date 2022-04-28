@@ -8,27 +8,49 @@ import GameUpdate
 
 handleEvent :: Event -> GameState -> IO GameState
 handleEvent (EventKey (MouseButton LeftButton) Down _ (x, y)) state
-      | and[(gameGameOver state),
+      | and[((gameMode state) == GameOver),
         x > 50, x < 350,
-        y < (-120), y > (-170)]  = return (initGame (gameMoneyScore state) (mkStdGen 100) 
-              (updateRecords (gameRecords state) (gameScore state)))
-      | and [(gameGameOver state), (gameRecordsOver state)] = return state{ gameRecordsOver = False }
-      | and[(gameGameOver state),
+        y < (-120), y > (-170)]  = do
+          g <- newStdGen
+          return (initGame (gameMoneyScore state) g 
+              (updateRecords (gameRecords state) (gameScore state)) (gameDefaultOffset state))
+      | and [((gameMode state) == Record)] = return state{ gameMode = GameOver}
+      | and[((gameMode state) == GameOver),
         x < 50, x > (-50),
-        y < (-150), y > (-250)]  =  return state{ gameRecordsOver = True }
-      | and [(gameGameOver state), 
+        y < (-150), y > (-250)]  =  return state{ gameMode = Record }
+      | and[((gameMode state) == GameOver),
+        x < 400, x > 250,
+        y < 200, y > 40]  =  return state{ gameMode = Settings }
+      | and[((gameMode state) == Settings),
+        x > (-250), x < 250,
+        y > 20, y < 80]  =  return state{ 
+          gameDefaultOffset = easyOffset,
+          gameMode = GameOver }
+      | and[((gameMode state) == Settings),
+        x > (-250), x < 250,
+        y > (-90), y < (-30)]  =  return state{ 
+          gameDefaultOffset = defaultOffset,
+          gameMode = GameOver }
+      | and[((gameMode state) == Settings),
+        x > (-250), x < 250,
+        y > (-200), y < (-140)]  =  return state{ 
+          gameDefaultOffset = hardOffset,
+          gameMode = GameOver }
+      | and [((gameMode state) == GameOver), 
         (gameMoneyScore state) >= moneyRevival,
         x < (-50), x > (-350),
         y < (-120), y > (-170)
         ] = return state {
           gameCollisPlayer = True, 
           gameMoneyScore = (gameMoneyScore state) - moneyRevival,
-          gameGameOver = False,
+          gameMode = InGame,
           gameCollisSteps = 300}
       |otherwise = return state
 handleEvent (EventKey (SpecialKey KeySpace) Down _ _) state
-  | (gameGameOver state) = return (initGame (gameMoneyScore state) (mkStdGen 100) 
-          (updateRecords (gameRecords state) (gameScore state)))
+  | ((gameMode state) == GameOver) = do
+    g <- newStdGen
+    return (initGame (gameMoneyScore state) g 
+          (updateRecords (gameRecords state) (gameScore state)) (gameDefaultOffset state))
   | otherwise = return state
 handleEvent (EventKey (SpecialKey KeyUp) Down _ _) state = return (makePlayerVert speed state)
 handleEvent (EventKey (SpecialKey KeyUp) Up _ _) state = return (makePlayerVert 0 state)

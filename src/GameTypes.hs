@@ -18,18 +18,20 @@ type Obstacle = Square
 type Background = Square
 type Money = Square
 
+data GameMode = Settings | InGame | GameOver | Record
+
 data GameState = GameState{
     gameObstacles :: [Obstacle]
     ,gamePlayer :: Player
     ,gameBackground :: Background
     ,gameScore :: Int
-    ,gameGameOver :: Bool
-    ,gameRecordsOver :: Bool
     ,gameRecords :: Records
     ,gameMoneyScore :: Int
     ,gameMoney :: [Money]
     ,gameCollisPlayer :: Bool
     ,gameCollisSteps :: Int
+    ,gameMode :: GameMode
+    ,gameDefaultOffset :: Float
     }
 
 data Images = Images{
@@ -40,6 +42,7 @@ data Images = Images{
     ,picGameOver :: Picture
     ,picBgRecords :: Picture
     ,picMoney :: Picture
+    ,picCompl :: Picture
     }
 
 speed :: Float
@@ -53,7 +56,7 @@ speedMoney = 600
 numbRecords :: Int
 numbRecords = 10
 numb :: [Int]
-numb = [1,2,3,4,5,6,7,8,9,10,11]
+numb = [1,2,3,4,5,6,7,8,9,10]
 numElement :: Int
 numElement = 10
 
@@ -76,8 +79,12 @@ platformWidth :: Float
 platformWidth = 20
 platformHeight :: Float
 platformHeight = 100
+easyOffset :: Float
+easyOffset = 200
 defaultOffset :: Float
-defaultOffset = 200
+defaultOffset = 400
+hardOffset :: Float
+hardOffset = 600
 
 moneyWidth :: Float
 moneyWidth = 40
@@ -87,7 +94,7 @@ moneyOffset :: Float
 moneyOffset = 600
 
 rRecords :: Records
-rRecords = [35555,2500,1500,0,0,0,0,0,0,0]
+rRecords = [0,0,0,0,0,0,0,0,0,0]
 
 moneyRevival :: Int
 moneyRevival = 10
@@ -100,3 +107,9 @@ obstacleHeight = (-w, w)
   where
     w = (fromIntegral screenHeight - platformHeight) / 2
 
+instance Eq GameMode where 
+  Settings == Settings = True
+  InGame == InGame = True
+  GameOver == GameOver = True
+  Record == Record = True
+  _ == _ =  False

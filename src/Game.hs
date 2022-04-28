@@ -7,12 +7,11 @@ import GameDraw
 import GameInit
 import GameHandle
 import GameUpdate
-import System.Random
 -----------------------------
 -- Main function for this app.
 ------------------------------
 
-loadImages :: IO (Maybe Picture, Maybe Picture, Maybe Picture, Maybe Picture, Maybe Picture, Maybe Picture)
+loadImages :: IO (Maybe Picture, Maybe Picture, Maybe Picture, Maybe Picture, Maybe Picture, Maybe Picture, Maybe Picture)
 loadImages = do
   bgrd   <- loadJuicy "src/bg.png"
   pers   <- loadJuicy "src/pers.png"
@@ -20,16 +19,18 @@ loadImages = do
   gover  <- loadJuicy "src/gover.png"
   money <- loadJuicy "src/money.png"
   bgRec   <- loadJuicy "src/bgRecords.png"
-  return (bgrd, pers, persCollis, gover, money, bgRec)
+  compl <- loadJuicy "src/complexity.png"
+  return (bgrd, pers, persCollis, gover, money, bgRec, compl)
 
-imag :: Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Images
-imag bgrd pers persCollis gover money bgRec = Images{
+imag :: Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Images
+imag bgrd pers persCollis gover money bgRec compl = Images{
   picBackground = bgrd, 
   picPlayer = pers,
   picPlayerCollis = persCollis, 
   picGameOver = gover,
   picMoney = money,
-  picBgRecords = bgRec}
+  picBgRecords = bgRec,
+  picCompl = compl}
 
 loadRecords :: String -> Maybe Records
 loadRecords str = justRecords(map toInt (lines str))
@@ -71,5 +72,5 @@ fps = 60
 -- Run game. This is the ONLY unpure function.
 runGame :: Int -> Records -> Images -> IO ()
 runGame money records images = do
-  g <- newStdGen
-  playIO display bgColor fps (initGame money g records) (drawGame images) handleEvent updateGame
+  playIO display bgColor fps (startGame money records) 
+    (drawGame images) handleEvent updateGame

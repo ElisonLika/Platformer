@@ -4,7 +4,11 @@ import GameTypes
 
 updateGame :: Time -> GameState -> IO GameState
 updateGame dt state
-  | and[(gameCollisPlayer state), (gameCollisSteps state) <= 0] = return state{
+  | and[
+    (gameCollisPlayer state), 
+    (gameCollisSteps state) <= 0,
+    (gameMode state) == InGame
+    ] = return state{
       gamePlayer = updatePlayer dt (gamePlayer state),
       gameScore = (gameScore state) + (round (1000*dt)),
       gameObstacles = updateObstacles dt (gameObstacles state),
@@ -13,11 +17,15 @@ updateGame dt state
   }
   | and[ 
     collision (gamePlayer state) (gameObstacles state),
-    not(gameCollisPlayer state)
+    not(gameCollisPlayer state),
+    (gameMode state) == InGame
    ] =  do
           writeFile recordsPath (writeToFile ((gameMoneyScore state) : (gameRecords state)))
-          return state{gameGameOver = True}
-  | collision (gamePlayer state) (gameMoney state) = return state{
+          return state{gameMode = GameOver}
+  | and[
+    collision (gamePlayer state) (gameMoney state),
+    (gameMode state) == InGame
+    ] = return state{
       gamePlayer = updatePlayer dt (gamePlayer state),
       gameScore = (gameScore state) + (round (1000*dt)),
       gameObstacles = updateObstacles dt (gameObstacles state),
@@ -25,13 +33,14 @@ updateGame dt state
       gameMoneyScore = (gameMoneyScore state) + 1,
       gameCollisSteps = ((gameCollisSteps state) - 1)
       }
-  | otherwise = return state{
+  | ((gameMode state) == InGame) = return state{
       gamePlayer = updatePlayer dt (gamePlayer state),
       gameScore = (gameScore state) + (round (1000*dt)),
       gameObstacles = updateObstacles dt (gameObstacles state),
       gameMoney = updateObstacles dt (gameMoney state),
       gameCollisSteps = ((gameCollisSteps state) - 1)
       }
+  | otherwise = return state
 
 writeToFile :: Records -> String
 writeToFile [] = ""

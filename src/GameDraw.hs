@@ -6,7 +6,17 @@ import GameTypes
 
 -- Отобразить игровое поле
 drawGame :: Images -> GameState-> IO Picture
-drawGame pic g = return (pictures
+drawGame pic g
+  | ((gameMode g) == InGame) = return (pictures
+    [
+      drawBackground (picBackground pic),
+      drawPlayer (picPlayer pic) (picPlayerCollis pic) (gameCollisPlayer g) (gamePlayer g),
+      drawObstacles (gameObstacles g),
+      drawMoney (picMoney pic) (gameMoney g),
+      drawScore (gameScore g),
+      drawMoneyScore (picMoney pic) (gameMoneyScore g)
+    ])
+  | ((gameMode g) == GameOver) = return (pictures
     [
       drawBackground (picBackground pic),
       drawPlayer (picPlayer pic) (picPlayerCollis pic) (gameCollisPlayer g) (gamePlayer g),
@@ -14,9 +24,13 @@ drawGame pic g = return (pictures
       drawMoney (picMoney pic) (gameMoney g),
       drawScore (gameScore g),
       drawMoneyScore (picMoney pic) (gameMoneyScore g),
-      drawGameOver (picGameOver pic) (gameGameOver g) (gameRecords g) (gameRecordsOver g) (picBgRecords pic)
+      drawGameOver (picGameOver pic)
     ])
-
+  | ((gameMode g) == Record) = return (drawRecords (picBgRecords pic) (gameRecords g))
+  | ((gameMode g) == Settings) = return (drawSettings (picCompl pic))
+  | otherwise = do 
+      putStrLn "Error Game Mod"
+      return blank
 -- Нарисовать задний фон
 drawBackground :: Picture -> Picture
 drawBackground bg1 = translate x y bg1
@@ -63,15 +77,13 @@ drawOneMoney :: Picture -> Money -> Picture
 drawOneMoney pic mon = (translate x y pic)
  where
    (x, y) = ((xLeft mon) + moneyWidth/2, (yBottom mon) + moneyHeight/2)
-drawGameOver :: Picture -> Bool -> Records -> Bool-> Picture -> Picture
-drawGameOver image True records drRecord bg = pictures[translate x y image, drawRecords bg drRecord records]
+drawGameOver :: Picture -> Picture
+drawGameOver image  = translate x y image
  where
    (x, y) = (0, 0)
-drawGameOver _ _ _ _ _ = blank
 
-drawRecords :: Picture ->Bool -> Records -> Picture
-drawRecords bg True records = pictures[translate 0 0 bg, pictures(map drawRecord (zip numb records))]
-drawRecords _ _ _ = blank
+drawRecords :: Picture -> Records -> Picture
+drawRecords bg records = pictures[translate 0 0 bg, pictures(map drawRecord (zip numb records))]
 
 drawRecord :: (Int, Int) -> Picture
 drawRecord (n, record) = pictures [draw n x1 y1, draw record x2 y2]
@@ -79,3 +91,8 @@ drawRecord (n, record) = pictures [draw n x1 y1, draw record x2 y2]
     draw a x y = color white (translate x y (scale 0.3 0.3 (text (show a))))
     (x1, y1) = (-200, 135 - (fromIntegral n) * 40)
     (x2, y2) = (0, 135 - (fromIntegral n) * 40)
+
+drawSettings :: Picture -> Picture
+drawSettings image = translate x y image
+ where
+   (x, y) = (0, 0)
